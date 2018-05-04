@@ -12,13 +12,19 @@ import model.StateHolder;
 
 public class AESKey implements SecretKey {
 
-	private static final Logger logger = Logger.getLogger(SecretKey.class.getName());
+	private static final Logger logger = Logger.getLogger(AESKey.class.getName());
 
 	private byte[] key;
 	private static final long serialVersionUID = 1L;
 
-	/* constructor */
-	/* copies the password to the key and fills with zeros if its less than size */
+	/** 
+	 * constructor
+	 * copies the password to the key and fills with zeros if its less than size
+	 * 
+	 * @param size the size of the key
+	 * @password the string of the user in bytes
+	 * @throws NoSuchAlgorithmException
+	 */
 	public AESKey(int size, byte[] password) {
 		size = size / 8;
 		key = new byte[size];
@@ -39,8 +45,11 @@ public class AESKey implements SecretKey {
 		}
 	}
 
-	/* overloaded constructor */
-	/* produces a random key using AES key generator */
+	/** overloaded constructor
+	 * produces a random key using AES key generator
+	 * @param size the size of the key
+	 * @throws NoSuchAlgorithmException
+	 */
 	public AESKey(int size) throws NoSuchAlgorithmException {
 		KeyGenerator aesKeygen = KeyGenerator.getInstance("AES");
 		aesKeygen.init(size, new SecureRandom());
@@ -48,7 +57,9 @@ public class AESKey implements SecretKey {
 		key = aesKey.getEncoded();
 	}
 
-	/* saves the key in bytes */
+	/**
+	 *  saves the key in bytes
+	 */
 	public void saveToFile(File file, StateHolder state)
 			throws NoSuchAlgorithmException, NoSuchProviderException, NoSuchPaddingException, InvalidKeyException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException
@@ -70,7 +81,9 @@ public class AESKey implements SecretKey {
 		}
 	}
 
-	/* loads the key in bytes */
+	/** 
+	 * loads the key in bytes 
+	 */
 	public void loadFromFile(File file, StateHolder state)
 			throws NoSuchAlgorithmException, NoSuchProviderException, NoSuchPaddingException, InvalidKeyException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException
@@ -98,7 +111,9 @@ public class AESKey implements SecretKey {
 		}
 	}
 
-	/* returns the security level of the password */
+	/**
+	 *  returns the security level of the password
+	 */
 	public static int securityLevel(String password) {
 		int digit = 0;
 		int lower = 0;
@@ -128,6 +143,22 @@ public class AESKey implements SecretKey {
 		return level;
 	}
 
+	/**
+	 * 
+	 * @param mode of operation of the algorithm e.g. ( "ECB" , "CBC" )
+	 * @param padding mode ( NoPadding, PKCS7Padding, ZeroPadding )
+	 * @param encrypt or decrypt mode
+	 * @param key aes secret key
+	 * @param text bytes of cleartext/ciphertext
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchProviderException
+	 * @throws NoSuchPaddingException
+	 * @throws InvalidKeyException
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 */
 	public static byte[] work(String mode, String padding, boolean encrypt, SecretKey key, byte[] text)
 			throws NoSuchAlgorithmException, NoSuchProviderException, NoSuchPaddingException, InvalidKeyException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException

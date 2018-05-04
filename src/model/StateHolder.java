@@ -78,7 +78,7 @@ public class StateHolder {
 
 		// serial number, initialized to a random positive num
 		// always a random number bellow 50000
-		serialNo = (new Random().nextInt()) % 50000;
+		serialNo = (Math.abs(new Random().nextInt()))%50000;
 
 		// the last received serial number is set to -1
 		// and is set to the actual received on the first message
@@ -101,41 +101,38 @@ public class StateHolder {
 	// returns the next serial number
 	// as a 5 char String
 	public String getSerial() {
-		StringBuilder ret = new StringBuilder();
-		ret.append(Integer.toString(this.serialNo % 100000));
+		String ret = Integer.toString(this.serialNo % 100000);
 		while (ret.length() < 5)
-			ret.insert(0, " ");
-		return ret.toString();
+			ret = " " + ret;
+		return ret;
 	}
 
 	// returns a new String with the current date and time
 	// the length is 34 chars
 	public String getDate() {
-		StringBuilder ret = new StringBuilder();
-		ret.append(new Date().toString());
+		String ret = new Date().toString();
 		while (ret.length() != 34)
-			ret.append(" ");
-		return ret.toString();
+			ret = " " + ret;
+		return ret;
 
 	}
 
 	// returns the checksum of the message
 	// as a 5 char String
-	public String makeChecksum(String msg) {
+	private String makeChecksum(String msg) {
 
 		int checksum = 0;
 		for (int i = 0; i < msg.length(); i++) {
 			checksum += msg.charAt(i);
 		}
-		StringBuilder ret = new StringBuilder();
-		ret.append(Integer.toString(checksum % 100000));
+		String ret = Integer.toString(checksum % 100000);
 		while (ret.length() < 5)
-			ret.insert(0, " ");
-		return ret.toString();
+			ret = " " + ret;
+		return ret;
 
 	}
 
-	public int intMakeChecksum(String msg) {
+	private int intMakeChecksum(String msg) {
 
 		int checksum = 0;
 		for (int i = 0; i < msg.length(); i++) {
@@ -178,6 +175,7 @@ public class StateHolder {
 		// the first 5 chars are the serial number
 		int serial;
 		try {
+			logger.info(receivedMsg);
 			serial = Integer.parseInt(receivedMsg.substring(0, 5).trim());
 		} catch (NumberFormatException n1) {
 			return new String[0];
@@ -211,12 +209,6 @@ public class StateHolder {
 		ret[2] = receivedMsg.substring(44);
 
 		return ret;
-	}
-
-	////////////////////////////////////////////////////////
-	// Saves the conversation history to a file
-	public boolean saveHistory() {
-		return false;
 	}
 
 	public String getMode2() {

@@ -30,8 +30,9 @@ public class Base64 {
 			map2[map1[i]] = (byte) i;
 	}
 
-	/*************************************************************/
-	/* convert byte[] to char[] */
+	/**
+	 *  convert byte[] to char[]
+	 */
 	public static char[] encode(byte[] in) {
 		int inLen = in.length;
 		int outLen;
@@ -65,11 +66,15 @@ public class Base64 {
 			out[op] = op < outStop ? map1[o3] : '*';
 			op++;
 		}
+		
 		return out;
 	}
 
-	/*************************************************************/
-	// decode function from char[] to byte[]
+	/**
+	 *  decode function from char[] to byte[]
+	 * @param in
+	 * @return
+	 */
 	public static byte[] decode(char[] in) {
 		
 		if (in.length % 4 != 0)
@@ -91,15 +96,11 @@ public class Base64 {
 			int i3 = ip < inLen ? in[ip++] : 'A';
 			if (i0 > 127 || i1 > 127 || i2 > 127 || i3 > 127)
 				throw new IllegalArgumentException("Illegal character in Base64 encoded data.");
-			int b0 = map2[i0];
-			int b1 = map2[i1];
-			int b2 = map2[i2];
-			int b3 = map2[i3];
-			if (b0 < 0 || b1 < 0 || b2 < 0 || b3 < 0)
+			if (map2[i0] < 0 || map2[i1] < 0 || map2[i2] < 0 || map2[i3] < 0)
 				throw new IllegalArgumentException("Illegal character in Base64 encoded data.");
-			int o0 = (b0 << 2) | (b1 >>> 4);
-			int o1 = ((b1 & 0xf) << 4) | (b2 >>> 2);
-			int o2 = ((b2 & 3) << 6) | b3;
+			int o0 = (map2[i0] << 2) | (map2[i1] >>> 4);
+			int o1 = ((map2[i1] & 0xf) << 4) | (map2[i2] >>> 2);
+			int o2 = ((map2[i2]) << 6) | (map2[i3] & 0xff);
 			out[op++] = (byte) o0;
 			if (op < oLen)
 				out[op++] = (byte) o1;
@@ -107,8 +108,7 @@ public class Base64 {
 				out[op++] = (byte) o2;
 		}
 		
-		return out;
-		
+		return out;	
 	}
 
 }

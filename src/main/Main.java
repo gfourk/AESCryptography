@@ -3,7 +3,7 @@ package main;
 import model.StateHolder;
 import view.GUI;
 
-public class Main {
+public class Main { // NO_UCD (unused code)
 
 	public static void main(String[] args) {
 		

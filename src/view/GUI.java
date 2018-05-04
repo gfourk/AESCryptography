@@ -24,18 +24,18 @@ import utils.Base64;
 public class GUI extends JFrame implements MouseListener, KeyListener {
 
 	private static final Logger logger = Logger.getLogger(GUI.class.getName());
-	
+
 	private static final long serialVersionUID = 1L;
 
 	// the client and server classes
-	transient TCPClient client;
-	transient TCPServer server;
-	transient StateHolder stateHolder;
+	private transient TCPServer server;
+	private transient TCPClient client;
+	private transient StateHolder stateHolder;
 
 	/*******************************************************************/
 	// two string that hold the conversation history encrypted and not
-	String history = "";
-	String historyEn = "";
+	private String history = "";
+	private String historyEn = "";
 
 	// first comes the menu bar
 	private JMenuBar menubar;
@@ -116,6 +116,12 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 
 		this.setIpPortMenu = new JMenuItem("Setup Network");
 		this.setIpPortMenu.addMouseListener(this);
+		this.aOk = new JButton("OK");
+		this.aCancel = new JButton("CANCEL");
+		this.aOk.addMouseListener(this);
+		this.aCancel.addMouseListener(this);
+		this.aOk.setBounds(10, 160, 100, 20);
+		this.aCancel.setBounds(120, 160, 100, 20);
 		this.setPasswordMenu = new JMenuItem("Set Password");
 		this.setPasswordMenu.addMouseListener(this);
 		this.setPasswordMenu2 = new JMenuItem("Set Password 2");
@@ -163,7 +169,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 
 		// create the top and bottom panels
 		this.topPanel = new JPanel();
-		/*   */ this.topPanel.setLayout(new GridLayout());
+		this.topPanel.setLayout(new GridLayout());
 		this.bottomPanel = new JPanel();
 		this.bottomPanel.setBorder(BorderFactory.createLoweredBevelBorder());
 		this.bottomPanel.setLayout(new GridLayout(2, 1));
@@ -228,8 +234,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
 		// set the window top left icon
 		this.setIconImage(new ImageIcon("457LogoSmall2.JPG").getImage());
-		// handle the close button action
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
 		// set starting dimensions
 		this.pack();
 		this.setSize(400, 650);
@@ -242,6 +247,18 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 					JOptionPane.INFORMATION_MESSAGE);
 		} catch (Exception e) { // do nothing in case of failure
 		}
+
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent e) {
+
+				if ( server != null ) {
+					server.close();
+				}
+				e.getWindow().dispose();
+			}
+		});
 	}
 
 	/****************************************************************************/
@@ -249,21 +266,17 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 	// returns true only after the server is up and running
 	/****************************************************************************/
 	private boolean setServer(int port) {
-		
-		try {
-			this.server.close();
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, e.getMessage(), e);
+
+		if ( server != null ) {
+			server.close();
 		}
 		
 		try {
-			this.server = new TCPServer(port, this);
+			server = new TCPServer(port, this);
 			server.start();
 		} catch (IOException e) {
-			this.server.setOn(false); // set the server state
 			return false;
 		}
-		this.server.setOn(true);
 		return true;
 	}
 
@@ -295,10 +308,6 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		this.aRemotePort = new JTextArea(Integer.toString(stateHolder.getRemotePort()));
 		JLabel aRemoteIpLabel = new JLabel("Remote IP : ");
 		this.aRemoteIp = new JTextArea(stateHolder.getRemoteIp());
-		this.aOk = new JButton("OK");
-		this.aCancel = new JButton("CANCEL");
-		this.aOk.addMouseListener(this);
-		this.aCancel.addMouseListener(this);
 
 		aPanel.add(aLocalPortLabel);
 		aPanel.add(this.aLocalPort);
@@ -318,15 +327,10 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		aRemoteIpLabel.setBounds(10, 110, 100, 20);
 		this.aRemoteIp.setBounds(120, 110, 100, 20);
 
-		this.aOk.setBounds(10, 160, 100, 20);
-		this.aCancel.setBounds(120, 160, 100, 20);
-
 		this.aSetupNetwork.getContentPane().add(aPanel);
 
 		this.aSetupNetwork.setVisible(true);
-
-		// disable the main window while dialog is up
-		this.setEnabled(false);
+		
 	}
 
 	/******************************************************************************/
@@ -369,7 +373,6 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 				this.aLocalPort.setBackground(Color.white); // set the colour back to white
 				this.aSetupNetwork.dispose();
 				this.stateHolder.setLocalPort(localPort); // store the new setting
-				this.setEnabled(true); // enable the main window
 			}
 		} catch (NumberFormatException g) {
 			this.aLocalPort.setBackground(Color.red);
@@ -380,7 +383,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 	// send message
 	// this is called whenever a user wants to send a message
 	/****************************************************************************/
-	void sendMessage() {
+	private void sendMessage() {
 
 		// if the client ip and port number are not set
 		// show a message and popup the network setup dialog
@@ -419,8 +422,15 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			this.stateHolder.setSerialNo(this.stateHolder.getSerialNo()-1);
 			return;
 		}
+
 		// now try to send to the other end the encrypted message
-		this.client.send(encrypted);
+		try {
+			this.client.send(encrypted);
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, e.getMessage(), e);
+			return;
+		}
+
 		// append the right things to the history string
 		this.history += stateHolder.getOutgoingMessageHead();// add the header of the html
 		this.history += userInput; // add the text the user typed
@@ -454,7 +464,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			decrypted = "Sorry failed to decrypt ciphertext";
 		}
 		String[] messageParts = this.stateHolder.parseMessage(decrypted);
-		if (messageParts == null) {
+		if (messageParts.length == 0) {
 			messageParts = new String[3];
 			messageParts[0] = "-----";
 			messageParts[1] = new Date().toString();
@@ -493,17 +503,25 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		}
 		// ----------------- set ip and port number menu network setup dialog
 		if (arg0.getSource().equals(this.setIpPortMenu)) {
+			this.setEnabled(false); // disable the main window
 			this.setupNetwork();
 		}
+		
 		// ---------------- Ok button in network setup dialog pressed
 		if (arg0.getSource().equals(this.aOk)) {
 			this.changeNetworkSettings();
+			this.setEnabled(true); // enable the main window
+			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 		// ---------------- cancel button in network setup dialog pressed
 		if (arg0.getSource().equals(this.aCancel)) {
 			this.aSetupNetwork.dispose();
 			this.setEnabled(true); // enable the main window
+			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
+		
 		// ----------------------------- if user wants to save the key
 		if (arg0.getSource() == this.savePasswordMenu) {
 			this.setEnabled(false); // disable the main window
@@ -520,6 +538,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 				}
 			}
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 		// ----------------------------- if user wants to load a key from a file
 		if (arg0.getSource() == this.loadPasswordMenu) {
@@ -537,6 +556,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 				}
 			}
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 		// ----------------------------- if the user pressed the submenu set pasword
 		if (arg0.getSource().equals(this.setPasswordMenu)) {
@@ -551,6 +571,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 				// if the user pressed the cancel button just return
 				if (s == null) {
 					this.setEnabled(true);
+					this.setAlwaysOnTop(true);
 					return;
 				}
 				// else if the user provided a password
@@ -570,6 +591,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			// create a new key with the password
 			this.stateHolder.setKey(new AESKey(this.stateHolder.getKeyLength(), s.getBytes()));
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 		// ----------------------------- if the user pressed the submenu set password 2
 		if (arg0.getSource().equals(this.setPasswordMenu2)) {
@@ -584,6 +606,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 				// if the user pressed the cancel button just return
 				if (s == null) {
 					this.setEnabled(true);
+					this.setAlwaysOnTop(true);
 					return;
 				}
 				// else if the user provided a password
@@ -603,6 +626,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			// create a new key for the key with the password #2
 			this.stateHolder.setKey2(new AESKey(this.stateHolder.getKeyLength(), s.getBytes()));
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 
 		// ----------------------------- if the user pressed the submenu set key lenght
@@ -615,6 +639,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 					JOptionPane.PLAIN_MESSAGE, null, possibilities, "" + this.stateHolder.getKeyLength());
 			if (s == null) {
 				this.setEnabled(true);
+				this.setAlwaysOnTop(true);
 				return;
 			}
 			// store the new key lenght and change the key only if the lenght has changed
@@ -636,6 +661,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			}
 			// always enable the main window when we are done
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 		// ----------------------------- if the user pressed the submenu set key lenght
 		// 2
@@ -648,6 +674,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 					"Select Key lenght #2", JOptionPane.PLAIN_MESSAGE, null, possibilities, "" + this.stateHolder.getKeyLength2());
 			if (s == null) {
 				this.setEnabled(true);
+				this.setAlwaysOnTop(true);
 				return;
 			}
 			// store the new key lenght #2 and change the key only if the lenght has changed
@@ -669,6 +696,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			}
 			// always enable the main window when we are done
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 		// ----------------------------- if the user pressed the submenu set AES padding
 		if (arg0.getSource().equals(this.setAESPaddingMenu)) {
@@ -680,12 +708,14 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 					JOptionPane.PLAIN_MESSAGE, null, possibilities, this.stateHolder.getPadding());
 			if (s == null) {
 				this.setEnabled(true);
+				this.setAlwaysOnTop(true);
 				return;
 			}
 			// store the new padding at the defaults class
 			this.stateHolder.setPadding(s);
 			// always enable the main window when we are done
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 		// ----------------------------- if the user pressed the submenu set AES padding
 		// 2
@@ -698,12 +728,14 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 					JOptionPane.PLAIN_MESSAGE, null, possibilities, this.stateHolder.getPadding2());
 			if (s == null) {
 				this.setEnabled(true);
+				this.setAlwaysOnTop(true);
 				return;
 			}
 			// store the new padding at the defaults class
 			this.stateHolder.setPadding2(s);
 			// always enable the main window when we are done
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 
 		// ----------------------------- if the user pressed the submenu set AES mode
@@ -716,12 +748,14 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 					JOptionPane.PLAIN_MESSAGE, null, possibilities, this.stateHolder.getMode());
 			if (s == null) {
 				this.setEnabled(true);
+				this.setAlwaysOnTop(true);
 				return;
 			}
 			// store the new padding at the defaults class
 			this.stateHolder.setMode(s);
 			// always enable the main window when we are done
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 		// ----------------------------- if the user pressed the submenu set AES mode 2
 		if (arg0.getSource().equals(this.setAESMode2Menu)) {
@@ -733,12 +767,14 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 					JOptionPane.PLAIN_MESSAGE, null, possibilities, this.stateHolder.getMode2());
 			if (s == null) {
 				this.setEnabled(true);
+				this.setAlwaysOnTop(true);
 				return;
 			}
 			// store the new padding at the defaults class
 			this.stateHolder.setMode2(s);
 			// always enable the main window when we are done
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 		// -------------------- if the user clicked the set input bg color menu
 		if (arg0.getSource().equals(this.setInputfieldBg)) {
@@ -751,6 +787,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			if (newColor != null)
 				this.textInputPane.setBackground(newColor);
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 		// -------------------- if the user clicked the set history bg color menu
 		if (arg0.getSource().equals(this.setHistoryfieldBg)) {
@@ -763,6 +800,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			if (newColor != null)
 				this.convHistory.setBackground(newColor);
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 		// -------------------- if the user clicked the set history encrypted bg color
 		// menu
@@ -776,6 +814,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			if (newColor != null)
 				this.convHistoryEncrypted.setBackground(newColor);
 			this.setEnabled(true);
+			this.setAlwaysOnTop(true);
 		}
 
 		return;
