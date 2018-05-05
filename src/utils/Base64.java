@@ -32,6 +32,8 @@ public class Base64 {
 
 	/**
 	 *  convert byte[] to char[]
+	 * @param in
+	 * @return
 	 */
 	public static char[] encode(byte[] in) {
 		int inLen = in.length;

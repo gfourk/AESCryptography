@@ -18,12 +18,12 @@ public class StateHolder {
 	// the port and ip outgoing packets go to
 	private String remoteIp;
 	private int remotePort;
-	
+
 	// the port our server listens to
 	private int localPort;
 
 	// ----- Encryption settings
-	
+
 	private String mode;
 	private String mode2;
 	private String padding;
@@ -42,8 +42,9 @@ public class StateHolder {
 	// the next expected serial
 	private int lastRemoteSerial;
 
-	/*************************************************************/
-	/*********************** constructor *************************/
+	/**
+	 * constructor
+	 */
 	public StateHolder() {
 		this.userName = "Me";
 		this.otherName = "Other";
@@ -65,14 +66,14 @@ public class StateHolder {
 		} catch (NoSuchAlgorithmException e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
-		
+
 		// create new random key for the key of 256 bits
 		try {
 			this.key2 = new AESKey(this.keyLength2);
 		} catch (NoSuchAlgorithmException e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
 		}
-		
+
 		this.password = null;
 		this.password2 = null;
 
@@ -85,21 +86,30 @@ public class StateHolder {
 		this.lastRemoteSerial = -1;
 	}
 
-	// returns an html header for the Message in the text area
+	/**
+	 *  returns an html header for the Message in the text area
+	 * @return
+	 */
 	public String getOutgoingMessageHead() {
 		Date d = new Date();
 		return "<p bgcolor=\"#4169E1\"><b>" + this.userName + " : " + d.toString() + " (SN: " + this.serialNo
 				+ ")</p></b>";
 	}
 
-	// returns an html header for the Message in the text area
-	// with the date and time contained in the message itself
+	/** returns an html header for the Message in the text area
+	 *  with the date and time contained in the message itself
+	 * @param date
+	 * @param serial
+	 * @return
+	 */
 	public String getIncommingMessageHead(String date, String serial) {
 		return "<p bgcolor=\"#00FF00\"><b>" + this.otherName + " : " + date + " (SN: " + serial + ")</p></b>";
 	}
 
-	// returns the next serial number
-	// as a 5 char String
+	/** returns the next serial number
+	 *  as a 5 char String
+	 * @return
+	 */
 	public String getSerial() {
 		String ret = Integer.toString(this.serialNo % 100000);
 		while (ret.length() < 5)
@@ -107,8 +117,10 @@ public class StateHolder {
 		return ret;
 	}
 
-	// returns a new String with the current date and time
-	// the length is 34 chars
+	/** returns a new String with the current date and time
+	 *  the length is 34 chars
+	 * @return
+	 */
 	public String getDate() {
 		String ret = new Date().toString();
 		while (ret.length() != 34)
@@ -117,8 +129,11 @@ public class StateHolder {
 
 	}
 
-	// returns the checksum of the message
-	// as a 5 char String
+	/** returns the checksum of the message
+	 *  as a 5 char String
+	 * @param msg
+	 * @return
+	 */
 	private String makeChecksum(String msg) {
 
 		int checksum = 0;
@@ -141,7 +156,11 @@ public class StateHolder {
 		return checksum % 100000;
 	}
 
-	// creates a message
+	/**
+	 *  creates a message
+	 * @param userIn
+	 * @return
+	 */
 	public String createMessage(String userIn) {
 		String ret = "";
 
@@ -162,11 +181,14 @@ public class StateHolder {
 		return ret;
 	}
 
-	// pasres a message and returns an array with its fields
-	// after it has checked all of the fields for correctness
-	// ret[0] = serial number
-	// ret[1] = date and time
-	// ret[2] = message
+	/** pasres a message and returns an array with its fields
+	 * after it has checked all of the fields for correctness
+	 * ret[0] = serial number
+	 * ret[1] = date and time
+	 * ret[2] = message
+	 * @param receivedMsg
+	 * @return
+	 */
 	public String[] parseMessage(String receivedMsg) {
 
 		// the return array

@@ -59,6 +59,16 @@ public class AESKey implements SecretKey {
 
 	/**
 	 *  saves the key in bytes
+	 * @param file
+	 * @param state
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchProviderException
+	 * @throws NoSuchPaddingException
+	 * @throws InvalidKeyException
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 * @throws IOException
 	 */
 	public void saveToFile(File file, StateHolder state)
 			throws NoSuchAlgorithmException, NoSuchProviderException, NoSuchPaddingException, InvalidKeyException,
@@ -82,7 +92,17 @@ public class AESKey implements SecretKey {
 	}
 
 	/** 
-	 * loads the key in bytes 
+	 * loads the key in bytes
+	 * @param file
+	 * @param state
+	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchProviderException
+	 * @throws NoSuchPaddingException
+	 * @throws InvalidKeyException
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 * @throws IOException
 	 */
 	public void loadFromFile(File file, StateHolder state)
 			throws NoSuchAlgorithmException, NoSuchProviderException, NoSuchPaddingException, InvalidKeyException,
@@ -113,6 +133,8 @@ public class AESKey implements SecretKey {
 
 	/**
 	 *  returns the security level of the password
+	 * @param password
+	 * @return
 	 */
 	public static int securityLevel(String password) {
 		int digit = 0;

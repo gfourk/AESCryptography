@@ -14,7 +14,12 @@ public class TCPServer extends Thread {
 	private ServerSocket welcomeSocket;
 	private GUI gui;
 
-	// constructor need only port number to listen to
+	/**
+	 *  constructor need only port number to listen to
+	 * @param port
+	 * @param gui
+	 * @throws IOException
+	 */
 	public TCPServer(int port, GUI gui) throws IOException {
 		welcomeSocket = new ServerSocket(port);
 		this.gui = gui;
@@ -29,7 +34,9 @@ public class TCPServer extends Thread {
 			}
 	}
 
-	// run method
+	/**
+	 *  run method
+	 */
 	@Override
 	public void run() {
 

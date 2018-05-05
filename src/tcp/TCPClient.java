@@ -8,13 +8,21 @@ public class TCPClient {
 	private String ip;
 	private int port;
 
-	// Constructor
+	/**
+	 *  Constructor
+	 * @param ip
+	 * @param port
+	 */
 	public TCPClient(String ip, int port) {
 		this.ip = ip;
 		this.port = port;
 	}
 
-	// send
+	/**
+	 *  send
+	 * @param msg
+	 * @throws IOException
+	 */
 	public void send(String msg) throws IOException {
 
 		try ( Socket clientSocket = new Socket(ip, port) ) {

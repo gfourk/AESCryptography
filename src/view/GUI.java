@@ -99,9 +99,10 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 
 	private JLabel aRemoteIpLabel;
 
-	/********************************************************************************/
-	/* default constructor */
-	/********************************************************************************/
+	/**
+	 * default constructor
+	 * @param stateHolder
+	 */
 	public GUI(StateHolder stateHolder) {
 
 		// super class constructor to create the window
@@ -263,10 +264,12 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		});
 	}
 
-	/****************************************************************************/
-	// sets a server thread listening to port number port provided by the user
-	// returns true only after the server is up and running
-	/****************************************************************************/
+	/** 
+	 * sets a server thread listening to port number port provided by the user
+	 * returns true only after the server is up and running
+	 * @param port
+	 * @return
+	 */
 	private boolean setServer(int port) {
 
 		if ( server != null ) {
@@ -282,14 +285,18 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		return true;
 	}
 
-	// sets a client class to send packets to ip and port
+	/**
+	 *  sets a client class to send packets to ip and port
+	 * @param ip
+	 * @param port
+	 */
 	private void setClient(String ip, int port) {
 		this.client = new TCPClient(ip, port);
 	}
 
-	/********************************************************************************/
-	// network setup dialog
-	/********************************************************************************/
+	/**
+	 *  network setup dialog
+	 */
 	private void setupNetwork() {
 		
 		this.setEnabled(false); // disable the main window
@@ -343,10 +350,10 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		
 	}
 
-	/******************************************************************************/
-	// this function is called when the accept / connect button is pressed
-	// in the network setup dialog
-	/******************************************************************************/
+	/** 
+	 * this function is called when the accept / connect button is pressed
+	 * in the network setup dialog
+	 */
 	private void changeNetworkSettings() {
 		// -------setup the client first
 		// first set the remote ip and port number
@@ -400,11 +407,11 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			this.aLocalPort.setBackground(Color.red);
 		}
 	}
-
-	/****************************************************************************/
-	// send message
-	// this is called whenever a user wants to send a message
-	/****************************************************************************/
+	
+	/**
+	 * send message
+	 * this is called whenever a user wants to send a message
+	 */
 	private void sendMessage() {
 
 		// if the client ip and port number are not set
@@ -471,10 +478,11 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		this.textInputPane.setText("");
 	}
 
-	/****************************************************************************/
-	// receive message
-	// the server thread calls this function to deliver a message to the gui
-	/****************************************************************************/
+	/**
+	 * receive message
+	 * the server thread calls this function to deliver a message to the gui
+	 * @param encrypted
+	 */
 	public void receive(String encrypted) {
 
 		String decrypted = null;
@@ -509,13 +517,11 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		this.convHistory.setText(this.history);
 		this.convHistoryEncrypted.setText(this.historyEn);
 	}
-	/****************************************************************************/
-	/* EVENTS */
-	/****************************************************************************/
-
-	/****************************************************************************/
-	// ACTION MOUSE PRESSED
-	/****************************************************************************/
+	
+	/** 
+	 * EVENTS
+	 * ACTION MOUSE PRESSED
+	 */
 	@Override
 	public void mousePressed(MouseEvent arg0) {
 
@@ -557,6 +563,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			}
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 		// ----------------------------- if user wants to load a key from a file
 		if (arg0.getSource() == this.loadPasswordMenu) {
@@ -575,6 +582,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			}
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 		// ----------------------------- if the user pressed the submenu set pasword
 		if (arg0.getSource().equals(this.setPasswordMenu)) {
@@ -590,6 +598,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 				if (s == null) {
 					this.setEnabled(true);
 					this.setAlwaysOnTop(true);
+					this.setAlwaysOnTop(false);
 					return;
 				}
 				// else if the user provided a password
@@ -610,6 +619,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			this.stateHolder.setKey(new AESKey(this.stateHolder.getKeyLength(), s.getBytes()));
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 		// ----------------------------- if the user pressed the submenu set password 2
 		if (arg0.getSource().equals(this.setPasswordMenu2)) {
@@ -625,6 +635,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 				if (s == null) {
 					this.setEnabled(true);
 					this.setAlwaysOnTop(true);
+					this.setAlwaysOnTop(false);
 					return;
 				}
 				// else if the user provided a password
@@ -645,6 +656,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			this.stateHolder.setKey2(new AESKey(this.stateHolder.getKeyLength(), s.getBytes()));
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 
 		// ----------------------------- if the user pressed the submenu set key lenght
@@ -658,6 +670,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			if (s == null) {
 				this.setEnabled(true);
 				this.setAlwaysOnTop(true);
+				this.setAlwaysOnTop(false);
 				return;
 			}
 			// store the new key lenght and change the key only if the lenght has changed
@@ -680,6 +693,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			// always enable the main window when we are done
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 		// ----------------------------- if the user pressed the submenu set key lenght
 		// 2
@@ -693,6 +707,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			if (s == null) {
 				this.setEnabled(true);
 				this.setAlwaysOnTop(true);
+				this.setAlwaysOnTop(false);
 				return;
 			}
 			// store the new key lenght #2 and change the key only if the lenght has changed
@@ -715,6 +730,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			// always enable the main window when we are done
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 		// ----------------------------- if the user pressed the submenu set AES padding
 		if (arg0.getSource().equals(this.setAESPaddingMenu)) {
@@ -727,6 +743,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			if (s == null) {
 				this.setEnabled(true);
 				this.setAlwaysOnTop(true);
+				this.setAlwaysOnTop(false);
 				return;
 			}
 			// store the new padding at the defaults class
@@ -734,6 +751,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			// always enable the main window when we are done
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 		// ----------------------------- if the user pressed the submenu set AES padding
 		// 2
@@ -747,6 +765,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			if (s == null) {
 				this.setEnabled(true);
 				this.setAlwaysOnTop(true);
+				this.setAlwaysOnTop(false);
 				return;
 			}
 			// store the new padding at the defaults class
@@ -754,6 +773,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			// always enable the main window when we are done
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 
 		// ----------------------------- if the user pressed the submenu set AES mode
@@ -767,6 +787,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			if (s == null) {
 				this.setEnabled(true);
 				this.setAlwaysOnTop(true);
+				this.setAlwaysOnTop(false);
 				return;
 			}
 			// store the new padding at the defaults class
@@ -774,6 +795,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			// always enable the main window when we are done
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 		// ----------------------------- if the user pressed the submenu set AES mode 2
 		if (arg0.getSource().equals(this.setAESMode2Menu)) {
@@ -786,6 +808,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			if (s == null) {
 				this.setEnabled(true);
 				this.setAlwaysOnTop(true);
+				this.setAlwaysOnTop(false);
 				return;
 			}
 			// store the new padding at the defaults class
@@ -793,6 +816,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 			// always enable the main window when we are done
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 		// -------------------- if the user clicked the set input bg color menu
 		if (arg0.getSource().equals(this.setInputfieldBg)) {
@@ -806,6 +830,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 				this.textInputPane.setBackground(newColor);
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 		// -------------------- if the user clicked the set history bg color menu
 		if (arg0.getSource().equals(this.setHistoryfieldBg)) {
@@ -819,6 +844,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 				this.convHistory.setBackground(newColor);
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 		// -------------------- if the user clicked the set history encrypted bg color
 		// menu
@@ -833,14 +859,15 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 				this.convHistoryEncrypted.setBackground(newColor);
 			this.setEnabled(true);
 			this.setAlwaysOnTop(true);
+			this.setAlwaysOnTop(false);
 		}
 
 		return;
 	}
 
-	/****************************************************************************/
-	// ACTION -- key pressed
-	/****************************************************************************/
+	/** 
+	 * ACTION -- key pressed
+	 */
 	public void keyPressed(KeyEvent arg0) {
 
 		// if there was some text typed in the input text pane
@@ -854,33 +881,49 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		}
 	}
 
-	/****************************** key typed **************************/
+	/**
+	 * NOT USED
+	 */
 	@Override
 	public void keyTyped(KeyEvent arg0) {
 		// TODO Auto-generated method stub
 	}
 
-	/*********************** NOT USED ***************************/
+	/**
+	 *  NOT USED
+	 */
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 *  NOT USED
+	 */
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 *  NOT USED
+	 */
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 *  NOT USED
+	 */
 	@Override
 	public void mouseExited(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 *  NOT USED
+	 */
 	@Override
 	public void keyReleased(KeyEvent arg0) {
 		// TODO Auto-generated method stub
