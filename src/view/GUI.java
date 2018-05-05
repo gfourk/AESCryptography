@@ -91,6 +91,14 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 	// --------------------- save / load password file
 	private JFileChooser openFile;
 
+	private JPanel aPanel;
+
+	private JLabel aLocalPortLabel;
+
+	private JLabel aRemotePortLabel;
+
+	private JLabel aRemoteIpLabel;
+
 	/********************************************************************************/
 	/* default constructor */
 	/********************************************************************************/
@@ -115,13 +123,7 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		this.loadPasswordMenu.addMouseListener(this);
 
 		this.setIpPortMenu = new JMenuItem("Setup Network");
-		this.setIpPortMenu.addMouseListener(this);
-		this.aOk = new JButton("OK");
-		this.aCancel = new JButton("CANCEL");
-		this.aOk.addMouseListener(this);
-		this.aCancel.addMouseListener(this);
-		this.aOk.setBounds(10, 160, 100, 20);
-		this.aCancel.setBounds(120, 160, 100, 20);
+		this.setIpPortMenu.addMouseListener(this);		
 		this.setPasswordMenu = new JMenuItem("Set Password");
 		this.setPasswordMenu.addMouseListener(this);
 		this.setPasswordMenu2 = new JMenuItem("Set Password 2");
@@ -289,6 +291,8 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 	// network setup dialog
 	/********************************************************************************/
 	private void setupNetwork() {
+		
+		this.setEnabled(false); // disable the main window
 		// setup window
 		this.aSetupNetwork = new JFrame("Setup Network");
 		this.aSetupNetwork.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -297,36 +301,42 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		this.aSetupNetwork.setResizable(false);
 
 		// setup main panel
-		JPanel aPanel = new JPanel();
-		aPanel.setLayout(null);
-		aPanel.setBounds(0, 0, 240, 240);
+		this.aPanel = new JPanel();
+		this.aPanel.setLayout(null);
+		this.aPanel.setBounds(0, 0, 240, 240);
 
 		// setup all components
-		JLabel aLocalPortLabel = new JLabel("Local Port No: ");
+		this.aLocalPortLabel = new JLabel("Local Port No: ");
 		this.aLocalPort = new JTextArea(Integer.toString(stateHolder.getLocalPort()));
-		JLabel aRemotePortLabel = new JLabel("Remote Port No: ");
+		this.aRemotePortLabel = new JLabel("Remote Port No: ");
 		this.aRemotePort = new JTextArea(Integer.toString(stateHolder.getRemotePort()));
-		JLabel aRemoteIpLabel = new JLabel("Remote IP : ");
+		this.aRemoteIpLabel = new JLabel("Remote IP : ");
 		this.aRemoteIp = new JTextArea(stateHolder.getRemoteIp());
+		this.aOk = new JButton("OK");
+		this.aCancel = new JButton("CANCEL");
+		this.aOk.addMouseListener(this);
+		this.aCancel.addMouseListener(this);
+		this.aOk.setBounds(10, 160, 100, 20);
+		this.aCancel.setBounds(120, 160, 100, 20);
 
-		aPanel.add(aLocalPortLabel);
-		aPanel.add(this.aLocalPort);
-		aPanel.add(aRemotePortLabel);
-		aPanel.add(this.aRemotePort);
-		aPanel.add(aRemoteIpLabel);
-		aPanel.add(this.aRemoteIp);
-		aPanel.add(this.aOk);
-		aPanel.add(this.aCancel);
+		this.aPanel.add(aLocalPortLabel);
+		this.aPanel.add(this.aLocalPort);
+		this.aPanel.add(aRemotePortLabel);
+		this.aPanel.add(this.aRemotePort);
+		this.aPanel.add(aRemoteIpLabel);
+		this.aPanel.add(this.aRemoteIp);
+		this.aPanel.add(this.aOk);
+		this.aPanel.add(this.aCancel);
 
-		aLocalPortLabel.setBounds(10, 10, 100, 20);
+		this.aLocalPortLabel.setBounds(10, 10, 100, 20);
 		this.aLocalPort.setBounds(120, 10, 100, 20);
 
-		aRemotePortLabel.setBounds(10, 60, 100, 20);
+		this.aRemotePortLabel.setBounds(10, 60, 100, 20);
 		this.aRemotePort.setBounds(120, 60, 100, 20);
 
-		aRemoteIpLabel.setBounds(10, 110, 100, 20);
+		this.aRemoteIpLabel.setBounds(10, 110, 100, 20);
 		this.aRemoteIp.setBounds(120, 110, 100, 20);
-
+		
 		this.aSetupNetwork.getContentPane().add(aPanel);
 
 		this.aSetupNetwork.setVisible(true);
@@ -348,7 +358,10 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		try {
 			remoteIp = this.aRemoteIp.getText();
 			remotePort = Integer.parseInt(this.aRemotePort.getText());
-			this.setClient(remoteIp, remotePort);
+			if ( remotePort > 0 && remotePort  < 65536 )
+				this.setClient(remoteIp, remotePort);
+			else
+				clientOk = false;
 		} catch (Exception e) {
 			clientOk = false;
 		}
@@ -369,10 +382,19 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		try {
 			// try to read the input
 			localPort = Integer.parseInt(this.aLocalPort.getText());
-			if (this.setServer(localPort)) { // if successful
+			if ( localPort > 0 && localPort  < 65536 && this.setServer(localPort)) {// if successful
+				
 				this.aLocalPort.setBackground(Color.white); // set the colour back to white
-				this.aSetupNetwork.dispose();
 				this.stateHolder.setLocalPort(localPort); // store the new setting
+				if ( clientOk ) {
+					this.aSetupNetwork.dispose();
+					this.setEnabled(true); // enable the main window
+					this.setAlwaysOnTop(true);
+					this.setAlwaysOnTop(false);
+				}
+			}
+			else {
+				this.aLocalPort.setBackground(Color.red);
 			}
 		} catch (NumberFormatException g) {
 			this.aLocalPort.setBackground(Color.red);
@@ -503,16 +525,12 @@ public class GUI extends JFrame implements MouseListener, KeyListener {
 		}
 		// ----------------- set ip and port number menu network setup dialog
 		if (arg0.getSource().equals(this.setIpPortMenu)) {
-			this.setEnabled(false); // disable the main window
 			this.setupNetwork();
 		}
 		
 		// ---------------- Ok button in network setup dialog pressed
 		if (arg0.getSource().equals(this.aOk)) {
 			this.changeNetworkSettings();
-			this.setEnabled(true); // enable the main window
-			this.setAlwaysOnTop(true);
-			this.setAlwaysOnTop(false);
 		}
 		// ---------------- cancel button in network setup dialog pressed
 		if (arg0.getSource().equals(this.aCancel)) {
